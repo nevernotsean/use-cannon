@@ -14,6 +14,8 @@ import {
   Trimesh,
 } from 'cannon-es'
 
+import Comlink from 'comlink'
+
 let bodies = {}
 let world = new World()
 world.defaultContactMaterial.contactEquationStiffness = 1e6
@@ -62,6 +64,7 @@ function task(e, sync = true) {
         rotation = [0, 0, 0],
         scale = [1, 1, 1],
         isKinematic,
+        onCollide,
         ...extra
       } = props
 
@@ -146,3 +149,10 @@ function syncBodies() {
 }
 
 self.onmessage = e => task(e)
+
+const obj = {
+  addCollisionHandler: () => world.bodies[uuid].addEventListener('collide', cb),
+  removeCollisionHandler: () => world.bodies[uuid].removeEventListener('collide', cb),
+}
+
+Comlink.expose(obj, self)
