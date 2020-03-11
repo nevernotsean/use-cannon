@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import React, { useMemo } from 'react'
 import { Canvas, useFrame } from 'react-three-fiber'
-import { Physics, useBox, usePlane, useSphere } from 'use-cannon'
+import { Physics, useBox, usePlane, useSphere, useCollision } from '../../../dist/index'
 import niceColors from 'nice-color-palettes'
 
 function Plane({ color, ...props }) {
@@ -15,12 +15,21 @@ function Plane({ color, ...props }) {
 }
 
 function Box() {
-  const [ref, api] = useBox(() => ({ mass: 1, args: [2, 2, 2], isKinematic: true }))
+  const [ref, api] = useBox(() => ({
+    name: 'Box',
+    mass: 1,
+    args: [2, 2, 2],
+    isKinematic: true,
+  }))
+
+  useCollision(ref, () => console.log('HIT'))
+
   useFrame(state => {
     const t = state.clock.getElapsedTime()
     api.setPosition(Math.sin(t * 2) * 5, Math.cos(t * 2) * 5, 3)
     api.setRotation(Math.sin(t * 6), Math.cos(t * 6), 0)
   })
+
   return (
     <mesh ref={ref} castShadow receiveShadow>
       <boxBufferGeometry attach="geometry" args={[4, 4, 4]} />

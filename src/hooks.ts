@@ -214,3 +214,5 @@ export function useConvexPolyhedron(fn: ConvexPolyhedronFn, deps: any[] = []) {
     deps
   )
 }
+
+export { useCollision } from './useCollision'

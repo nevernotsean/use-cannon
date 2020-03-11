@@ -14,7 +14,7 @@ import {
   Trimesh,
 } from 'cannon-es'
 
-import Comlink from 'comlink'
+import * as Comlink from 'comlink'
 
 let bodies = {}
 let world = new World()
@@ -152,8 +152,19 @@ function syncBodies() {
 self.onmessage = e => task(e)
 
 const obj = {
-  addCollisionHandler: () => world.bodies[uuid].addEventListener('collide', cb),
-  removeCollisionHandler: () => world.bodies[uuid].removeEventListener('collide', cb),
+  addCollisionHandler: async (uuid, cb) => {
+    const handler = async () => await cb()
+
+    await world.bodies
+      .filter(({ uuid: id }) => id == uuid)
+      .map(body => body.addEventListener('collide', handler))
+
+    return () => {
+      world.bodies
+        .filter(({ uuid: id }) => id == uuid)
+        .map(body => body.removeEventListener('collide', handler))
+    }
+  },
 }
 
 Comlink.expose(obj, self)
